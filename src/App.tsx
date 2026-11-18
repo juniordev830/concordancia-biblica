@@ -90,7 +90,7 @@ export default function App() {
         {catalogIssue && <div className="row"><p role="alert" className="error">Catálogo indisponível.</p><button onClick={() => retryCatalog(catalogAttempt + 1)}>Recarregar catálogo</button></div>}
         {(issue || historyError || favoriteError) && <p role="alert" className="error">{issue || historyError || favoriteError}</p>}
       </section>
-      <section className="panel stack">
+      <section className="panel stack" id="resultados" tabIndex={-1}>
         <h2>Resultados</h2>
         <p className="muted" role="status">{pending ? 'Pesquisando…' : results ? results.matches + ' referência(s) · ' + results.occurrences + ' ocorrência(s) no índice consultado' : 'Faça uma pesquisa para ver as referências.'}</p>
         {results?.matches === 0 && <p>Nenhum resultado. Experimente outra palavra ou retire um filtro.</p>}
@@ -106,7 +106,7 @@ export default function App() {
       </section>
     </div>
     <aside className="stack">
-      <section className="panel stack">
+      <section className="panel stack" id="favoritos" tabIndex={-1}>
         <h2>Favoritos</h2>
         {!favorites.length && <p className="muted">Marque uma referência para consultá-la depois.</p>}
         <ul className="list">{favorites.map(entry => <li className="subtle" key={entry.id}><details>
@@ -114,7 +114,7 @@ export default function App() {
           <button className="quiet" onClick={() => favorite(entry)}>Remover favorito</button>
         </details></li>)}</ul>
       </section>
-      <section className="panel stack">
+      <section className="panel stack" id="buscas" tabIndex={-1}>
         <h2>Buscas recentes</h2>
         {!history.length && <p className="muted">Suas últimas buscas ficam neste navegador.</p>}
         <ul className="list">{history.map(item => <li key={searchUrl(item)}><button className="selection" onClick={() => {

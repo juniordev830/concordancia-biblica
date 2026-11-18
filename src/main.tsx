@@ -16,7 +16,11 @@ createRoot(document.getElementById('root')!).render(
     <main id="conteudo">
       <div className="intro">
         <h1>Concordância bíblica</h1>
-        <p>SUBConcordância bíblica</p>
+        <nav className="atalhos" aria-label="Seções desta página">
+          <a href="#resultados">Resultados</a>
+          <a href="#favoritos">Favoritos</a>
+          <a href="#buscas">Buscas recentes</a>
+        </nav>
       </div>
       <App />
     </main>
