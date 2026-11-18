@@ -1,8 +1,15 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { recentQueries, searchUrl } from '../src/search.ts';
+import { parseSavedFavorites, parseSavedHistory, recentQueries, searchUrl } from '../src/search.ts';
 
 const search = { q: '  João & fé  ', mode: 'expression' as const, book: '', testament: 'NT', corpus: 'bible' as const };
+test('valida o histórico e os favoritos salvos antes de renderizar', () => {
+  const match = { id: 'JO.1.1', book: 'João', reference: 'João 1:1', testament: 'NT', text: 'Exemplo', occurrences: 0, match: 'reference' };
+  assert.deepEqual(parseSavedHistory(JSON.stringify([search])), [search]);
+  assert.deepEqual(parseSavedFavorites(JSON.stringify([match])), [match]);
+  assert.throws(() => parseSavedHistory(JSON.stringify([{ ...search, q: null }])), /Formato inválido/);
+  assert.throws(() => parseSavedFavorites('[null]'), /Formato inválido/);
+});
 test('URL preserva acentos e caracteres do filtro sem injetar parâmetros', () => {
   const url = new URL(searchUrl(search), 'http://localhost');
   assert.equal(url.searchParams.get('q'), 'João & fé');

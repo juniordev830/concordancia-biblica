@@ -5,6 +5,34 @@ export type Matches = { rows: Match[]; matches: number; occurrences: number };
 export type Catalog = { entries: number; books: { book: string; testament: string }[] };
 export const pageSize = 30;
 
+function isCriteria(value: unknown): value is Criteria {
+  if (!value || typeof value !== 'object') return false;
+  const entry = value as Criteria;
+  return typeof entry.q === 'string' && typeof entry.book === 'string' && typeof entry.testament === 'string'
+    && (entry.mode === 'words' || entry.mode === 'expression')
+    && (entry.corpus === 'bible' || entry.corpus === 'summaries');
+}
+
+function isMatch(value: unknown): value is Match {
+  if (!value || typeof value !== 'object') return false;
+  const entry = value as Match;
+  return typeof entry.id === 'string' && typeof entry.book === 'string' && typeof entry.reference === 'string'
+    && typeof entry.testament === 'string' && typeof entry.text === 'string'
+    && Number.isSafeInteger(entry.occurrences) && entry.occurrences >= 0
+    && (entry.match === 'text' || entry.match === 'reference');
+}
+
+function parseSavedList<T>(raw: string, isEntry: (value: unknown) => value is T): T[] {
+  const entries: unknown = JSON.parse(raw);
+  if (!Array.isArray(entries) || !entries.every(isEntry)) {
+    throw new Error('Formato inválido da lista salva.');
+  }
+  return entries;
+}
+
+export const parseSavedHistory = (raw: string) => parseSavedList(raw, isCriteria);
+export const parseSavedFavorites = (raw: string) => parseSavedList(raw, isMatch);
+
 export function searchUrl(criteria: Criteria, page = 1) {
   return '/api/search?' + new URLSearchParams({ ...criteria, q: criteria.q.trim(), page: String(page), limit: String(pageSize) }).toString();
 }
