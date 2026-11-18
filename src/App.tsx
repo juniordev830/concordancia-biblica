@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { getJson, pageSize, recentQueries, searchUrl } from './search.ts';
+import { getJson, pageSize, parseSavedFavorites, parseSavedHistory, recentQueries, searchUrl } from './search.ts';
 import type { Catalog, Corpus, Criteria, Match, Matches } from './search.ts';
 import { useLocalState } from './storage.ts';
 
@@ -15,8 +15,8 @@ export default function App() {
   const [lastSearch, setLastSearch] = useState<Criteria>();
   const [pending, setPending] = useState(false);
   const [issue, setIssue] = useState('');
-  const [history, setHistory, historyError] = useLocalState<Criteria[]>('concordancia-historico-v2', []);
-  const [favorites, setFavorites, favoriteError] = useLocalState<Match[]>('concordancia-favoritos-v2', []);
+  const [history, setHistory, historyError] = useLocalState<Criteria[]>('concordancia-historico-v2', [], parseSavedHistory);
+  const [favorites, setFavorites, favoriteError] = useLocalState<Match[]>('concordancia-favoritos-v2', [], parseSavedFavorites);
   const request = useRef<AbortController>(null);
   const bookOptions = catalog?.books.filter(item => !criteria.testament || item.testament === criteria.testament) ?? [];
   const apiError = 'Não foi possível consultar o servidor. Confirme se a API está rodando.';
