@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { getJson, pageSize, parseSavedFavorites, parseSavedHistory, recentQueries, searchUrl } from './search.ts';
+import { exportMatches, getJson, pageSize, parseSavedFavorites, parseSavedHistory, recentQueries, searchUrl } from './search.ts';
 import type { Catalog, Corpus, Criteria, Match, Matches } from './search.ts';
 import { useLocalState } from './storage.ts';
 
@@ -63,6 +63,17 @@ export default function App() {
       ? previous.filter(item => item.id !== entry.id) : [...previous, entry]);
   }
 
+  function downloadPage() {
+    if (!results?.rows.length || !lastSearch) return;
+    const file = new Blob(['\uFEFF', exportMatches(results.rows, lastSearch.corpus)], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(file);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'referencias-pagina-' + page + '.csv';
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
   return <div className="split">
     <div className="stack">
       <section className="panel stack">
@@ -94,6 +105,7 @@ export default function App() {
         <h2>Resultados</h2>
         <p className="muted" role="status">{pending ? 'Pesquisando…' : results ? results.matches + ' referência(s) · ' + results.occurrences + ' ocorrência(s) no índice consultado' : 'Faça uma pesquisa para ver as referências.'}</p>
         {results?.matches === 0 && <p>Nenhum resultado. Experimente outra palavra ou retire um filtro.</p>}
+        {results && results.rows.length > 0 && <button disabled={pending} onClick={downloadPage}>Baixar página em CSV</button>}
         <ul className="list">{results?.rows.map(entry => <li className="subtle stack" key={entry.id}>
           <div className="row between"><h3>{entry.reference}</h3><button aria-pressed={isFavorite(entry)} onClick={() => favorite(entry)}>Favorito</button></div>
           <p>{entry.text}</p><small>{entry.match === 'reference' ? 'Correspondência na referência' : entry.occurrences + ' ocorrência(s) neste resultado'}</small>
