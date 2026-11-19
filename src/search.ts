@@ -5,6 +5,20 @@ export type Matches = { rows: Match[]; matches: number; occurrences: number };
 export type Catalog = { entries: number; books: { book: string; testament: string }[] };
 export const pageSize = 30;
 
+export function exportMatches(rows: Match[], corpus: Corpus): string {
+  const source = corpus === 'bible'
+    ? 'Bíblia Livre (BLIVRE) © 2018 Diego Santos, Mario Sérgio e Marco Teles, CC BY 4.0 https://ebible.org/find/details.php?id=porbr2018'
+    : 'Resumos didáticos originais';
+  const cell = (raw: string) => {
+    const safe = /^[\s]*[=+@-]/.test(raw) ? "'" + raw : raw;
+    return '"' + safe.replaceAll('"', '""') + '"';
+  };
+  return [
+    'Referência;Texto;Ocorrências;Fonte',
+    ...rows.map(row => [cell(row.reference), cell(row.text), row.occurrences, cell(source)].join(';')),
+  ].join('\r\n') + '\r\n';
+}
+
 function isCriteria(value: unknown): value is Criteria {
   if (!value || typeof value !== 'object') return false;
   const entry = value as Criteria;
